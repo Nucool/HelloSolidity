@@ -1,5 +1,5 @@
 var Voting = artifacts.require("./Voting.sol");
 
 module.exports = function(deployer) {
-  deployer.deploy(Voting, ['Rama', 'Nick', 'Jose'], {gas: 6700000});
+  deployer.deploy(Voting, ['Nopadon', 'Nop', 'Test'], {gas: 6700000});
 };

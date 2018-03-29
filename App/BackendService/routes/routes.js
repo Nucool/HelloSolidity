@@ -11,6 +11,14 @@ let json = voting_artifacts
 let address = '0x895aa0f0391fb2e4687e1f6158dd159cd68e47a3'
 
 var contract = contracttruff(json);
+
+if (typeof web3 !== 'undefined') {
+  web3 = web3.currentProvider;
+} else {
+  // If no injected web3 instance is detected, fall back to Ganache
+  web3 = new Web3.providers.HttpProvider('http://localhost:7545');
+}
+
 // Step 3: Provision the contract with a web3 provider
 contract.setProvider(new Web3.providers.HttpProvider("http://localhost:8545"));
 if (typeof contract.currentProvider.sendAsync !== "function") {
@@ -20,6 +28,16 @@ if (typeof contract.currentProvider.sendAsync !== "function") {
     );
   };
 }
+
+var metaContract
+var account
+contract.deployed().then(function(deployed) {
+  metaContract = deployed
+  metaContract.contract._eth.getAccounts(function (error, accounts) {
+    account = accounts[0]
+    console.log('account', account)
+  })
+})
 
 const accountAA = '0xef5e72d932457d87e1491a2e4304535cf57b9218';
 const accountBB = '0x74885a2d99287f72fd2e34d7b311dd7b7a1e7da1';
@@ -60,11 +78,11 @@ var appRouter = function (app) {
     let metaContract2;
     contract.deployed().then(function(deployed) {
       metaContract2 = deployed
-      return metaContract2.setInstructor('test', 2, {from: '0x8605aacc3ff3b5dad4aa37f6ce35ee01b8499107'})
+      return metaContract2.setInstructor('test', 2, {from: '0x2ad41a31ddb76f85949a0afc681151628ef77420'})
       //return metaContract2.totalVotesFor.call(candidateName)
     }).then(function(result) {
       console.log('result', result)
-      return metaContract2.getInstructor.call({from: '0x8605aacc3ff3b5dad4aa37f6ce35ee01b8499107'})
+      return metaContract2.getInstructor.call({from: '0x2ad41a31ddb76f85949a0afc681151628ef77420'})
     }).then(function(result) {
       console.log('getInstructor result', result)
     })
@@ -80,9 +98,9 @@ var appRouter = function (app) {
 
     contract.deployed().then(function(deployed) {
       metaContract2 = deployed
-      return metaContract2.voteForCandidate(candidateName, {from: '0x4bbf678034af27438bcb3bdf10a2a674b5d6b64e'})
+      return metaContract2.voteForCandidate(candidateName, {from: account})
     }).then(function(result) {
-      console.log('vote')
+      console.log('vote success')
     })
     var data = ({
       result: 'success'
@@ -93,28 +111,19 @@ var appRouter = function (app) {
   app.get("/voting/:candidateName", function (req, res) {
     const candidateName = req.params.candidateName
     let metaContract2;
-    /*contract.deployed().then(function(deployed) {
-    metaContract2 = deployed
-    return metaContract2.voteForCandidate(candidateName, {from: '0x4bbf678034af27438bcb3bdf10a2a674b5d6b64e'})
-    //return metaContract2.totalVotesFor.call(candidateName)
-  }).then(function(result) {
-  return metaContract2.totalVotesFor.call(candidateName, {from: '0x8605aacc3ff3b5dad4aa37f6ce35ee01b8499107'})
-}).then(function(result) {
-console.log('totalVotesFor result', result.toNumber())
-})*/
-contract.deployed().then(function(deployed) {
-  metaContract2 = deployed
-  return metaContract2.totalVotesFor.call(candidateName, {from: '0x8605aacc3ff3b5dad4aa37f6ce35ee01b8499107'})
-}).then(function(result) {
-  let totalVote = result.toNumber()
-  console.log('totalVotesFor result', totalVote)
-  var data = ({
-    firstName: candidateName,
-    voteCount: totalVote
+    contract.deployed().then(function(deployed) {
+      metaContract2 = deployed
+      return metaContract2.totalVotesFor.call(candidateName, {from: address})
+    }).then(function(result) {
+      let totalVote = result.toNumber()
+      console.log('totalVotesFor result', totalVote)
+      var data = ({
+        firstName: candidateName,
+        voteCount: totalVote
+      });
+      res.status(200).send(data);
+    })
   });
-  res.status(200).send(data);
-})
-});
 }
 
 module.exports = appRouter;
