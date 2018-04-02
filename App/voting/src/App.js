@@ -16,32 +16,39 @@ class App extends Component {
   }
 
   componentDidMount() {
-    axios.get('http://localhost:3001/voting/Nopadon')
-    .then(response => {
-      console.log('response',response)
-      this.setState({
-        voteNopadon: response.data.voteCount
+    this.getResourceVoting()
+  }
+
+  getResourceVoting() {
+      axios.get('http://localhost:3001/voting/Nopadon')
+      .then(response => {
+        console.log('response',response)
+        this.setState({
+          voteNopadon: response.data.voteCount
+        })
       })
-    })
-    axios.get('http://localhost:3001/voting/Nop')
-    .then(response => {
-      console.log('response',response)
-      this.setState({
-        voteNop: response.data.voteCount
+      axios.get('http://localhost:3001/voting/Nop')
+      .then(response => {
+        console.log('response',response)
+        this.setState({
+          voteNop: response.data.voteCount
+        })
       })
-    })
-    axios.get('http://localhost:3001/voting/Test')
-    .then(response => {
-      console.log('response',response)
-      this.setState({
-        voteTest: response.data.voteCount
+      axios.get('http://localhost:3001/voting/Test')
+      .then(response => {
+        console.log('response',response)
+        this.setState({
+          voteTest: response.data.voteCount
+        })
       })
-    })
   }
 
   handleClick (candidateName) {
     axios.post('http://localhost:3001/voting/' + candidateName)
-    .then(response => console.log(response))
+    .then(response => {
+      console.log(response)
+      this.getResourceVoting()
+    })
   }
 
   render() {

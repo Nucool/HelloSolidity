@@ -12,13 +12,6 @@ let address = '0x895aa0f0391fb2e4687e1f6158dd159cd68e47a3'
 
 var contract = contracttruff(json);
 
-if (typeof web3 !== 'undefined') {
-  web3 = web3.currentProvider;
-} else {
-  // If no injected web3 instance is detected, fall back to Ganache
-  web3 = new Web3.providers.HttpProvider('http://localhost:7545');
-}
-
 // Step 3: Provision the contract with a web3 provider
 contract.setProvider(new Web3.providers.HttpProvider("http://localhost:8545"));
 if (typeof contract.currentProvider.sendAsync !== "function") {
@@ -96,11 +89,9 @@ var appRouter = function (app) {
   app.post("/voting/:candidateName", function (req, res) {
     const candidateName = req.params.candidateName
 
-    contract.deployed().then(function(deployed) {
-      metaContract2 = deployed
-      return metaContract2.voteForCandidate(candidateName, {from: account})
-    }).then(function(result) {
-      console.log('vote success')
+    metaContract.voteForCandidate(candidateName, {from: account})
+    .then(function(result) {
+      console.log('vote success !!!')
     })
     var data = ({
       result: 'success'
@@ -108,22 +99,23 @@ var appRouter = function (app) {
     res.status(200).send(data);
   })
 
-  app.get("/voting/:candidateName", function (req, res) {
+  app.get("/voting/:candidateName", async function (req, res) {
     const candidateName = req.params.candidateName
-    let metaContract2;
-    contract.deployed().then(function(deployed) {
-      metaContract2 = deployed
-      return metaContract2.totalVotesFor.call(candidateName, {from: address})
-    }).then(function(result) {
-      let totalVote = result.toNumber()
-      console.log('totalVotesFor result', totalVote)
-      var data = ({
-        firstName: candidateName,
-        voteCount: totalVote
-      });
-      res.status(200).send(data);
-    })
+
+    let resultMeta = await metaContract.totalVotesFor.call(candidateName)
+    let totalVote = resultMeta.toNumber()
+    console.log('await', resultMeta)
+
+    let data = ({
+      firstName: candidateName,
+      voteCount: totalVote
+    });
+
+    console.log('await totalVotesFor resultMeta',data)
+    res.status(200).send(data);
   });
+
 }
+
 
 module.exports = appRouter;
