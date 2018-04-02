@@ -59,3 +59,4 @@ typings/
 
 # addon
 HelloSolidity/build
+build/contracts

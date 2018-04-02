@@ -1,11 +1,11 @@
-pragma solidity ^0.4.17;
+pragma solidity ^0.4.21;
 
 contract Voting {
 
   mapping (bytes32 => uint8) public votesReceived;
 
   bytes32[] public candidateList;
-  event Test(bytes32 candidate);
+  event VoteFor(bytes32 candidate);
 
   function Voting(bytes32[] candidateNames) public {
     candidateList = candidateNames;
@@ -13,12 +13,13 @@ contract Voting {
 
   function totalVotesFor(bytes32 candidate) public returns (uint8) {
     require(validCandidate(candidate));
-    Test(candidate);
+    emit VoteFor(candidate);
     return votesReceived[candidate];
   }
 
   function voteForCandidate(bytes32 candidate) public {
     require(validCandidate(candidate));
+    emit VoteFor(candidate);
     votesReceived[candidate] += 1;
   }
 

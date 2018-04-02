@@ -24,13 +24,20 @@ if (typeof contract.currentProvider.sendAsync !== "function") {
 
 var metaContract
 var account
+var allEvents
 contract.deployed().then(function(deployed) {
   metaContract = deployed
+  allEvents = metaContract.allEvents(function(error, result){
+    if (!error)
+    console.log(result);
+  })
   metaContract.contract._eth.getAccounts(function (error, accounts) {
     account = accounts[0]
     console.log('account', account)
   })
 })
+
+
 
 const accountAA = '0xef5e72d932457d87e1491a2e4304535cf57b9218';
 const accountBB = '0x74885a2d99287f72fd2e34d7b311dd7b7a1e7da1';
